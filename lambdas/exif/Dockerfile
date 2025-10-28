@@ -8,3 +8,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # TODO: implement the rest of the image
 #
 ############
+COPY pyproject.toml ./
+RUN uv sync --frozen --no-dev
+COPY handler.py ./
+ENV PYTHONPATH="/var/task/.venv/lib/python3.13/site-packages:/var/task"
+CMD ["handler.exif_handler"]
