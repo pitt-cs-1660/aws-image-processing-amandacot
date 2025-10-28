@@ -51,37 +51,35 @@ def exif_handler(event, context):
                     #  TODO: add exif lambda code here
                     #
                     ######
-                    # Download the image from S3
-                    img = download_from_s3(bucket_name, object_key)
+                    # download image from S3
+                    image = download_from_s3(bucket_name, object_key)
                     
-                    # Extract EXIF metadata
-                    exif_data = img.getexif()
-                    metadata = {}
+                    # extract EXIF metadata
+                    exif_data = {
+                        'width': image.width,
+                        'height': image.height,
+                        'format': image.format,
+                        'mode': image.mode
+                    }
                     
-                    if exif_data:
-                        for tag_id, value in exif_data.items():
-                            tag = ExifTags.TAGS.get(tag_id, str(tag_id))
-                            # Convert any non-JSON-serializable values to strings
-                            try:
-                                json.dumps(value)
-                                metadata[tag] = value
-                            except TypeError:
-                                metadata[tag] = str(value)
+                    # extract EXIF tags if available
+                    if hasattr(image, 'getexif'):
+                        exif = image.getexif()
+                        if exif:
+                            for tag_id, value in exif.items():
+                                try:
+                                    exif_data[str(tag_id)] = str(value)
+                                except Exception as e:
+                                    print(f"Error processing tag {tag_id}: {e}")
                     
-                    # Build output JSON object
-                    metadata_json = json.dumps({
-                        "bucket": bucket_name,
-                        "key": object_key,
-                        "exif": metadata
-                    }, indent=2)
+                    print(f"Extracted EXIF data: {json.dumps(exif_data, indent=2)}")
                     
-                    # Construct output key (same filename but .json, under /processed/exif/)
-                    filename = Path(object_key).stem + ".json"
-                    out_key = f"processed/exif/{filename}"
-                    
-                    # Upload metadata as JSON
-                    upload_to_s3(bucket_name, out_key, metadata_json, content_type="application/json")
-                    print(f"Uploaded EXIF metadata to s3://{bucket_name}/{out_key}")
+                    # upload metadata to /processed/exif/ as JSON
+                    from pathlib import Path
+                    filename = Path(object_key).stem  # @note: get filename without extension
+                    output_key = f"processed/exif/{filename}.json"
+                    upload_to_s3(bucket_name, output_key, json.dumps(exif_data, indent=2), 'application/json')
+                    print(f"Uploaded to: {output_key}")
 
                     processed_count += 1
 
