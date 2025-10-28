@@ -51,6 +51,27 @@ def resize_handler(event, context):
                     #  TODO: add resize lambda code here
                     #
                     ######
+                    # Download original image
+                    img = download_from_s3(bucket_name, object_key).convert("RGB")
+                    
+                    # Make a 512x512 
+                    target_size = (512, 512)
+                    thumb = img.copy()
+                    thumb.thumbnail(target_size)  # keeps aspect while fitting inside 512x512
+                    
+                    # Centers image on 512×512 canvas
+                    canvas = Image.new("RGB", target_size, color=(255, 255, 255))  # white background
+                    x = (target_size[0] - thumb.width) // 2
+                    y = (target_size[1] - thumb.height) // 2
+                    canvas.paste(thumb, (x, y))
+                    
+                    # Build output key under processed/resize/
+                    filename = Path(object_key).name
+                    out_key = f"processed/resize/{filename}"
+                    
+                    # Upload result to processed/resize/<filename>
+                    upload_to_s3(bucket_name, out_key, canvas, content_type="image/jpeg")
+                    print(f"Uploaded: s3://{bucket_name}/{out_key}")
 
                     processed_count += 1
 
