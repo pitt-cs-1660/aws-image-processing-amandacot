@@ -51,6 +51,37 @@ def exif_handler(event, context):
                     #  TODO: add exif lambda code here
                     #
                     ######
+                    # Download the image from S3
+                    img = download_from_s3(bucket_name, object_key)
+                    
+                    # Extract EXIF metadata
+                    exif_data = img.getexif()
+                    metadata = {}
+                    
+                    if exif_data:
+                        for tag_id, value in exif_data.items():
+                            tag = ExifTags.TAGS.get(tag_id, str(tag_id))
+                            # Convert any non-JSON-serializable values to strings
+                            try:
+                                json.dumps(value)
+                                metadata[tag] = value
+                            except TypeError:
+                                metadata[tag] = str(value)
+                    
+                    # Build output JSON object
+                    metadata_json = json.dumps({
+                        "bucket": bucket_name,
+                        "key": object_key,
+                        "exif": metadata
+                    }, indent=2)
+                    
+                    # Construct output key (same filename but .json, under /processed/exif/)
+                    filename = Path(object_key).stem + ".json"
+                    out_key = f"processed/exif/{filename}"
+                    
+                    # Upload metadata as JSON
+                    upload_to_s3(bucket_name, out_key, metadata_json, content_type="application/json")
+                    print(f"Uploaded EXIF metadata to s3://{bucket_name}/{out_key}")
 
                     processed_count += 1
 
