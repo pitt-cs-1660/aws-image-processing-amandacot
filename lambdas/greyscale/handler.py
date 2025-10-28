@@ -51,6 +51,20 @@ def greyscale_handler(event, context):
                     #  TODO: add greyscale lambda code here
                     #
                     ######
+                    # Download original image from S3
+                    img = download_from_s3(bucket_name, object_key)
+                    
+                    # Convert to greyscale
+                    grey = img.convert("L")  # "L" = 8-bit greyscale mode
+                    
+                    # Build output key under processed/greyscale/
+                    filename = Path(object_key).name
+                    out_key = f"processed/greyscale/{filename}"
+                    
+                    # Upload result to S3
+                    upload_to_s3(bucket_name, out_key, grey, content_type="image/jpeg")
+                    print(f"Uploaded greyscale image to s3://{bucket_name}/{out_key}")
+
 
                     processed_count += 1
 
