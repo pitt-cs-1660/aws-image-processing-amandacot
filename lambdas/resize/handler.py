@@ -51,27 +51,20 @@ def resize_handler(event, context):
                     #  TODO: add resize lambda code here
                     #
                     ######
-                    # Download original image
-                    img = download_from_s3(bucket_name, object_key).convert("RGB")
+                    # download image from S3
+                    image = download_from_s3(bucket_name, object_key)
+                    print(f"Downloaded image: {image.size}")
                     
-                    # Make a 512x512 
-                    target_size = (512, 512)
-                    thumb = img.copy()
-                    thumb.thumbnail(target_size)  # keeps aspect while fitting inside 512x512
+                    # resize image to 512x512
+                    resized_image = image.resize((512, 512), Image.Resampling.LANCZOS)
+                    print(f"Resized to: {resized_image.size}")
                     
-                    # Centers image on 512×512 canvas
-                    canvas = Image.new("RGB", target_size, color=(255, 255, 255))  # white background
-                    x = (target_size[0] - thumb.width) // 2
-                    y = (target_size[1] - thumb.height) // 2
-                    canvas.paste(thumb, (x, y))
-                    
-                    # Build output key under processed/resize/
+                    # upload processed image to /processed/resize/
+                    from pathlib import Path
                     filename = Path(object_key).name
-                    out_key = f"processed/resize/{filename}"
-                    
-                    # Upload result to processed/resize/<filename>
-                    upload_to_s3(bucket_name, out_key, canvas, content_type="image/jpeg")
-                    print(f"Uploaded: s3://{bucket_name}/{out_key}")
+                    output_key = f"processed/resize/{filename}"
+                    upload_to_s3(bucket_name, output_key, resized_image)
+                    print(f"Uploaded to: {output_key}")
 
                     processed_count += 1
 
