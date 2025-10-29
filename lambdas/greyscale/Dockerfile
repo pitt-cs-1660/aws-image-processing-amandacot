@@ -9,7 +9,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 #
 ############
 COPY pyproject.toml ./
-RUN uv sync --frozen --no-dev
+RUN uv sync --no-dev
 COPY handler.py ./
 ENV PYTHONPATH="/var/task/.venv/lib/python3.13/site-packages:/var/task"
 CMD ["handler.greyscale_handler"]
