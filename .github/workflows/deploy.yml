@@ -27,6 +27,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Check that secrets are present
+        run: |
+            test -n "${{ secrets.AWS_ACCESS_KEY_ID }}" || (echo "AWS_ACCESS_KEY_ID missing" && exit 1)
+            test -n "${{ secrets.AWS_SECRET_ACCESS_KEY }}" || (echo "AWS_SECRET_ACCESS_KEY missing" && exit 1)
 
       - name: Login to Amazon ECR
         id: login-ecr
