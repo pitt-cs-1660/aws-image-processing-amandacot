@@ -46,7 +46,7 @@ jobs:
           ECR_REPOSITORY: resize-lambda
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          cd lambdas/resize
+          
           ######
           #
           #  TODO: implement build and push to ECR
@@ -120,7 +120,7 @@ jobs:
           ECR_REPOSITORY: greyscale-lambda
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          cd lambdas/greyscale
+         
           ######
           #
           #  TODO: implement build and push to ECR
