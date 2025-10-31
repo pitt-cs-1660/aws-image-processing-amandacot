@@ -196,7 +196,7 @@ jobs:
           ECR_REPOSITORY: exif-lambda
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          cd lambdas/exif
+          
           ######
           #
           #  TODO: implement build and push to ECR
