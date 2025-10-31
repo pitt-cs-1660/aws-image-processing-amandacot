@@ -46,12 +46,8 @@ jobs:
           ECR_REPOSITORY: resize-lambda
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          
-          ######
-          #
-          #  TODO: implement build and push to ECR
-          #
-          ######
+          cd lambdas/resize
+         
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -120,12 +116,8 @@ jobs:
           ECR_REPOSITORY: greyscale-lambda
           IMAGE_TAG: ${{ github.sha }}
         run: |
-         
-          ######
-          #
-          #  TODO: implement build and push to ECR
-          #
-          ######
+         cd lambdas/greyscale
+          
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -196,12 +188,8 @@ jobs:
           ECR_REPOSITORY: exif-lambda
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          cd lambdas/exif
           
-          ######
-          #
-          #  TODO: implement build and push to ECR
-          #
-          ######
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
